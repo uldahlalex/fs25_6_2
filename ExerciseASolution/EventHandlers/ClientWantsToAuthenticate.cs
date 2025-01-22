@@ -12,6 +12,7 @@ public class ClientWantsToAuthenticateDto : BaseDto
 public class ServerAuthenticatedClientDto : BaseDto
 {
     public bool Success { get; set; }
+    public List<string> Topics { get; set; } = new List<string>();
     public string UserId { get; set; }
 }
 
@@ -29,10 +30,6 @@ public class ClientWantsToAuthenticateEventHandler(WebSocketManager webSocketMan
         }
         
         await webSocketManager.Authenticate(socket.ConnectionInfo.Id.ToString(), dto.UserId);
-        socket.SendDto(new ServerAuthenticatedClientDto()
-        {
-            UserId = dto.UserId,
-            Success = true
-        });
+
     }
 }

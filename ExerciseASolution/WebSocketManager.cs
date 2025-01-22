@@ -1,7 +1,9 @@
 using System.Collections.Concurrent;
 using System.Text.Json;
+using ExerciseASolution.EventHandlers;
 using Fleck;
 using StackExchange.Redis;
+using WebSocketBoilerplate;
 
 public class WebSocketManager
 {
@@ -16,15 +18,15 @@ public class WebSocketManager
 
     public async Task OnNewConnection(IWebSocketConnection socket)
     {
-        var connectionId = Guid.NewGuid().ToString();
-        _connections.TryAdd(connectionId, socket);
+     
+        _connections.TryAdd(socket.ConnectionInfo.Id.ToString(), socket);
 
         _ = Task.Run(async () =>
         {
             await Task.Delay(TimeSpan.FromSeconds(30));
-            if (!_userToConnectionsMap.Values.Any(set => set.Contains(connectionId)))
+            if (!_userToConnectionsMap.Values.Any(set => set.Contains(socket.ConnectionInfo.Id.ToString())))
             {
-                await CloseConnection(connectionId, "Authentication timeout");
+                await CloseConnection(socket.ConnectionInfo.Id.ToString(), "Authentication timeout");
             }
         });
     }
@@ -63,11 +65,10 @@ public class WebSocketManager
             await Subscribe(connectionId, topic.ToString());
         }
 
-        await socket.Send(JsonSerializer.Serialize(new 
+         socket.SendDto((new ServerAuthenticatedClientDto()
         { 
-            type = "auth_success",
-            userId = userId,
-            topics = previousTopics.Select(t => t.ToString()).ToList()
+            UserId = userId,
+            Topics = previousTopics.Select(t => t.ToString()).ToList()
         }));
     }
 
