@@ -1,7 +1,5 @@
 using System.Reflection;
 using ExerciseASolution;
-using Fleck;
-using Microsoft.Extensions.Options;
 using StackExchange.Redis;
 using WebSocketBoilerplate;
 
