@@ -7,9 +7,11 @@ public class WebSocketManager
 {
     private readonly IDatabase _redis;
     private readonly ConcurrentDictionary<string, IWebSocketConnection> _sockets = new();
+    private readonly ILogger<WebSocketManager> _logger;
 
-    public WebSocketManager(IConnectionMultiplexer redis)
+    public WebSocketManager(IConnectionMultiplexer redis, ILogger<WebSocketManager> logger)
     {
+        _logger = logger;
         _redis = redis.GetDatabase();
     }
     
@@ -27,9 +29,18 @@ public class WebSocketManager
             .Select(c => c.ToString())
             .Where(connId => _sockets.ContainsKey(connId)); 
     }
+    
+    public async Task SetUserIdForConnection(string connectionId, string userId)
+    {
+        await _redis.HashSetAsync($"ws:connection:{connectionId}", new HashEntry[]
+        {
+            new("userId", userId)
+        });
+    }
 
     public async Task OnConnect(IWebSocketConnection socket)
     {
+        _logger.LogInformation(socket.ConnectionInfo.Id.ToString());
         var connectionId = socket.ConnectionInfo.Id.ToString();
         _sockets.TryAdd(connectionId, socket);
         await _redis.HashSetAsync($"ws:connection:{connectionId}", new HashEntry[]

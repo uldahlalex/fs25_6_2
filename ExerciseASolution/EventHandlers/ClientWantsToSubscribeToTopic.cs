@@ -20,10 +20,14 @@ public class ClientWantsToSubscribeToTopic(WebSocketManager manager) : BaseEvent
 {
     public override async Task Handle(ClientWantsToSubscribToTopicDto dto, IWebSocketConnection socket)
     {
-       await manager.Subscribe(socket.ConnectionInfo.Id.ToString(), dto.Topic);
+       // var userId = await manager.GetUserIdByConnection(socket.ConnectionInfo.Id.ToString());
+       await manager.Subscribe(
+           //userId
+           socket.ConnectionInfo.Id.ToString()
+           , dto.Topic);
         var resp = new ServerHasSubscribedClientToTopicDto
         {
-            UserId = await manager.GetUserIdByConnection(socket.ConnectionInfo.Id.ToString()) ?? throw new Exception("User not found"),
+            UserId = await manager.GetUserIdByConnection(socket.ConnectionInfo.Id.ToString()) ?? throw new Exception("User not found with ID "+socket.ConnectionInfo.Id),
             requestId = dto.RequestId,
             Topic = dto.Topic
         };
