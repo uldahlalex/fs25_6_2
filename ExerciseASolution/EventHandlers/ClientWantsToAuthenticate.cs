@@ -23,22 +23,15 @@ public class ClientWantsToAuthenticateEventHandler(WebSocketManager webSocketMan
 {
     public override async Task Handle(ClientWantsToAuthenticateDto dto, IWebSocketConnection socket)
     {
-        if (string.IsNullOrEmpty(dto.Jwt))
-        {
-            socket.SendDto(new ServerAuthenticatedClientDto()
-            {
-                Success = false,
-                requestId = dto.requestId
-            });
-            return;
-        }
+        //just imagine we have an authentication mechanism here
 
-        var topics = await webSocketManager.Authenticate(socket.ConnectionInfo.Id.ToString(), dto.UserId);
+        await webSocketManager.Subscribe(socket.ConnectionInfo.Id.ToString(), $"user:{dto.UserId}");
+        var topics = await webSocketManager.GetTopicsForConnection(dto.UserId);
         socket.SendDto((new ServerAuthenticatedClientDto()
         {
             UserId = dto.UserId,
             requestId = dto.requestId,
-            Topics = topics
+            Topics = topics.ToList()
         }));
     }
 }

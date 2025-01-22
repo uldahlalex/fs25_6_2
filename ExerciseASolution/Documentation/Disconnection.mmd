@@ -1,0 +1,17 @@
+sequenceDiagram
+    title Disconnection Flow
+    participant Client
+    participant WebSocketServer
+    participant WebSocketManager
+    participant Redis
+
+    Client->>WebSocketServer: WebSocket Disconnect
+    WebSocketServer->>WebSocketManager: OnDisconnect(connectionId)
+    WebSocketManager->>Redis: SetMembers ws:connection:{connectionId}:topics
+    Redis-->>WebSocketManager: Topics list
+    par Parallel cleanup
+        WebSocketManager->>Redis: SetRemove from all topic sets
+        WebSocketManager->>Redis: Delete ws:connection:{connectionId}
+        WebSocketManager->>Redis: Delete ws:connection:{connectionId}:topics
+    end
+    Note over WebSocketManager: Remove from _sockets dictionary

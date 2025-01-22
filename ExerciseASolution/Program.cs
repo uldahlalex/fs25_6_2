@@ -19,5 +19,4 @@ builder.Services.InjectEventHandlers(Assembly.GetExecutingAssembly());
 var app = builder.Build();
 
 app.Services.GetRequiredService<CustomWebSocketServer>().Start(app);
-app.Services.GetRequiredService<WebSocketManager>().SeedExampleTopicsToRedis().GetAwaiter().GetResult();
 app.Run();

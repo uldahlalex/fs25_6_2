@@ -1,0 +1,17 @@
+sequenceDiagram
+    title Topic Subscription Flow
+    participant Client
+    participant WebSocketServer
+    participant EventHandler
+    participant WebSocketManager
+    participant Redis
+
+    Client->>WebSocketServer: ClientWantsToSubscribToTopicDto
+    WebSocketServer->>EventHandler: CallEventHandler
+    EventHandler->>WebSocketManager: Subscribe(connectionId, topic)
+    WebSocketManager->>Redis: SetAdd ws:topic:{topic}
+    WebSocketManager->>Redis: SetAdd ws:connection:{connectionId}:topics
+    EventHandler->>WebSocketManager: GetUserIdByConnection
+    WebSocketManager->>Redis: HashGet ws:connection:{connectionId}
+    Redis-->>WebSocketManager: userId
+    EventHandler->>Client: ServerHasSubscribedClientToTopicDto

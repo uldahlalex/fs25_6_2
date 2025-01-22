@@ -23,7 +23,7 @@ public class ClientWantsToSubscribeToTopic(WebSocketManager manager) : BaseEvent
        await manager.Subscribe(socket.ConnectionInfo.Id.ToString(), dto.Topic);
         var resp = new ServerHasSubscribedClientToTopicDto
         {
-            UserId = manager.GetUserIdByConnectionId(socket.ConnectionInfo.Id.ToString()),
+            UserId = await manager.GetUserIdByConnection(socket.ConnectionInfo.Id.ToString()) ?? throw new Exception("User not found"),
             requestId = dto.RequestId,
             Topic = dto.Topic
         };

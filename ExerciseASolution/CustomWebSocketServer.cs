@@ -13,8 +13,8 @@ public class CustomWebSocketServer(
 
         server.Start(socket =>
         {
-            socket.OnOpen = async () =>  await wsManager.OnNewConnection(socket);
-            socket.OnClose = async () => await wsManager.OnNewConnection(socket);
+            socket.OnOpen = async () =>  await wsManager.OnConnect(socket);
+            socket.OnClose = async () => await wsManager.OnDisconnect(socket.ConnectionInfo.Id.ToString());
             socket.OnMessage = async message =>
             {
                 try
