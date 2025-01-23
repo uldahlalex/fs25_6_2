@@ -39,7 +39,7 @@ jobs:
           flags: --allow-unauthenticated  # Add this line
           source: .
           env_vars: |-
-            APPOPTIONS__DragonflyConnectionString=${{secrets.DRAGONFLY}}
+            APPOPTIONS__DragonflyConnectionString='${{ secrets.DRAGONFLY }}'
 
       - name: Show Output
         run: echo ${{ steps.deploy.outputs.url }}
