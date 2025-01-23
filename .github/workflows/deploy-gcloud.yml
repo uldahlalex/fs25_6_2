@@ -37,7 +37,6 @@ jobs:
           service: fs25
           region: europe-north1
           flags: --allow-unauthenticated  # Add this line
-
           source: .
           env_vars: |-
             APPOPTIONS__DragonflyConnectionString=${{secrets.DRAGONFLY}}

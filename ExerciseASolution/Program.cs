@@ -23,4 +23,6 @@ var app = builder.Build();
 var opts = app.Services.GetRequiredService<IOptionsMonitor<AppOptions>>().CurrentValue;
 Console.WriteLine(JsonSerializer.Serialize(opts));
 app.Services.GetRequiredService<CustomWebSocketServer>().Start(app);
-app.Run();
+//run on port 8080
+var url = "http://0.0.0.0:8081";
+app.Run(url);
