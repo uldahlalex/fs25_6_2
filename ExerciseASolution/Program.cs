@@ -11,9 +11,25 @@ builder.Services.AddOptionsWithValidateOnStart<AppOptions>()
     .Bind(builder.Configuration.GetSection(nameof(AppOptions)));
 
 var appOptions = builder.Configuration.GetSection(nameof(AppOptions)).Get<AppOptions>();
-Console.WriteLine(JsonSerializer.Serialize(appOptions));
+var redisConfig = new ConfigurationOptions
+{
+    AbortOnConnectFail = false
+};
+
+//For production deployment with gcloud avoid using comma separated connectionstring
+if (appOptions.DragonFlyConnectionString.StartsWith("rediss://") || 
+    appOptions.DragonFlyConnectionString.StartsWith("redis://"))
+{
+    redisConfig.Ssl = appOptions.DragonFlyConnectionString.StartsWith("rediss://");
+    redisConfig.EndPoints.Add(appOptions.DragonFlyConnectionString);
+}
+else
+{
+    redisConfig = ConfigurationOptions.Parse(appOptions.DragonFlyConnectionString);
+}
+
 builder.Services.AddSingleton<IConnectionMultiplexer>(
-    ConnectionMultiplexer.Connect(appOptions.DragonFlyConnectionString));
+    ConnectionMultiplexer.Connect(redisConfig));
 builder.Services.AddSingleton<WebSocketManager>();
 builder.Services.AddSingleton<CustomWebSocketServer>();
 
