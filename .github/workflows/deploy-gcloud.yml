@@ -37,9 +37,10 @@ jobs:
         with:
           service: fs25
           region: europe-north1
-          flags: --allow-unauthenticated --set-env-vars="APPOPTIONS__DragonflyConnectionString=${{ secrets.DRAGONFLY }}"
+          flags: --allow-unauthenticated  # Add this line
           source: .
-
+          env_vars: |-
+            APPOPTIONS__DragonflyConnectionString_BASE64=${{ steps.encode.outputs.encoded }}
 
       - name: Show Output
         run: echo ${{ steps.deploy.outputs.url }}
