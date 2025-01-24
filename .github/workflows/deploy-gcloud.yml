@@ -30,7 +30,11 @@ jobs:
       #gcloud projects add-iam-policy-binding YOUR_PROJECT_ID --member=serviceAccount:YOUR_SERVICE_ACCOUNT_NAME@YOUR_PROJECT_ID.iam.gserviceaccount.com --role=roles/iam.serviceAccountUser           
       
       #2. create key for service account: gcloud iam service-accounts keys create key.json --iam-account YOUR_SERVICE_ACCOUNT_EMAIL
-      
+      - name: Encode connection string
+        id: encode
+        run: |
+          echo "encoded=$(echo "${{ secrets.DRAGONFLY }}" | base64)" >> $GITHUB_OUTPUT
+
       - name: Deploy to Cloud Run
         id: deploy
         uses: google-github-actions/deploy-cloudrun@v1
