@@ -50,3 +50,5 @@ app.Urls.Add($"http://0.0.0.0:{restPort}");
 app.Services.GetRequiredService<IProxyConfig>().StartProxyServer(publicPort, restPort, wsPort);
 
 app.Run();
+
+//Example WS connection: https://fs25-267099996159.europe-north1.run.app
