@@ -33,7 +33,8 @@ jobs:
       - name: Encode connection string
         id: encode
         run: |
-          echo "encoded=$(echo "${{ secrets.DRAGONFLY }}" | base64)" >> $GITHUB_OUTPUT
+          ENCODED=$(echo -n "${{ secrets.DRAGONFLY }}" | base64 -w 0)
+          echo "encoded=$ENCODED" >> "$GITHUB_OUTPUT"
 
       - name: Deploy to Cloud Run
         id: deploy
