@@ -16,7 +16,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - run: echo ${{ secrets.DRAGONFLY }}
+      - run: echo "Secret exists and has length of ${#DRAGONFLY}"
+        env:
+          DRAGONFLY: ${{ secrets.DRAGONFLY }}
 
       # - name: Authenticate to Google Cloud
       #   uses: google-github-actions/auth@v2
