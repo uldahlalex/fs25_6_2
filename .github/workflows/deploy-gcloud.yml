@@ -39,10 +39,10 @@ jobs:
           region: europe-north1
           flags: --allow-unauthenticated 
           source: .
-          # env_vars: |-
-          #   APPOPTIONS__DragonflyConnectionString=${{ secrets.DRAGONFLY }}
+          env_vars: |-
+            APPOPTIONS__DragonflyConnectionString=${#DRAGONFLY}
         env:
-          APPOPTIONS__DragonflyConnectionString=${{ secrets.DRAGONFLY }}
+          Dragonfly=${{ secrets.DRAGONFLY }}
 
 
       - name: Show Output
