@@ -30,11 +30,7 @@ jobs:
       #gcloud projects add-iam-policy-binding YOUR_PROJECT_ID --member=serviceAccount:YOUR_SERVICE_ACCOUNT_NAME@YOUR_PROJECT_ID.iam.gserviceaccount.com --role=roles/iam.serviceAccountUser           
       
       #2. create key for service account: gcloud iam service-accounts keys create key.json --iam-account YOUR_SERVICE_ACCOUNT_EMAIL
-      - name: Encode connection string
-        id: encode
-        run: |
-          ENCODED=$(echo -n "${{ secrets.DRAGONFLY }}" | base64 -w 0)
-          echo "encoded=$ENCODED" >> "$GITHUB_OUTPUT"
+
 
       - name: Deploy to Cloud Run
         id: deploy
@@ -45,7 +41,7 @@ jobs:
           flags: --allow-unauthenticated  # Add this line
           source: .
           env_vars: |-
-            APPOPTIONS__DragonflyConnectionString_BASE64=${{ steps.encode.outputs.encoded }}
+            APPOPTIONS__DragonflyConnectionString=${{ secrets.DRAGONFLY }}
 
       - name: Show Output
         run: echo ${{ steps.deploy.outputs.url }}
