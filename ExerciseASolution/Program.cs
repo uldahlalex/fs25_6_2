@@ -58,11 +58,13 @@ const int restPort = 5000;
 const int wsPort = 8181;
 var publicPort = int.Parse(Environment.GetEnvironmentVariable("PORT") ?? "8080");
 app.Urls.Add($"http://0.0.0.0:{restPort}");
-app.Services.GetRequiredService<IProxyConfig>().StartProxyServer(publicPort, restPort, wsPort);
+//app.Services.GetRequiredService<IProxyConfig>().StartProxyServer(publicPort, restPort, wsPort);
+
 app.Services.GetRequiredService<CustomWebSocketServer>().Start(app);
 var redis = app.Services.GetRequiredService<IConnectionMultiplexer>();
 var db = redis.GetDatabase();
-db.StringSet("test", "Hello, World!");
+var result = db.StringSet("test", "Hello, World!");
+Console.WriteLine(result);
 
 app.MapGet("/", () => "Hello, World!");
 
