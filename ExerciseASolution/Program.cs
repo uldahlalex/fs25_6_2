@@ -53,5 +53,6 @@ var redis = app.Services.GetRequiredService<IConnectionMultiplexer>();
 var db = redis.GetDatabase();
 var result = db.StringSet("test", "Hello, World!");
 
-
+app.Urls.Clear();
+app.Urls.Add($"http://*:5000");
 app.Run();
