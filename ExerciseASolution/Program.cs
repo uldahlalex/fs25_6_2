@@ -63,6 +63,8 @@ var redis = app.Services.GetRequiredService<IConnectionMultiplexer>();
 var db = redis.GetDatabase();
 db.StringSet("test", "Hello, World!");
 
+app.MapGet("/", () => "Hello, World!");
+
 app.Run();
 
 //Example WS connection: https://fs25-267099996159.europe-north1.run.app
