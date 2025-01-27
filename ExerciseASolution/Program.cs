@@ -11,28 +11,39 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddOptionsWithValidateOnStart<AppOptions>()
     .Bind(builder.Configuration.GetSection(nameof(AppOptions)));
 builder.Services.AddSingleton<IProxyConfig, ProxyConfig>();
-
-
 var appOptions = builder.Configuration.GetSection(nameof(AppOptions)).Get<AppOptions>();
+
 var redisConfig = new ConfigurationOptions
 {
-    AbortOnConnectFail = false
+    AbortOnConnectFail = false,
+    ConnectTimeout = 5000,
+    SyncTimeout = 5000,
+    Ssl = true,
+    DefaultDatabase = 0  
 };
 
-//For production deployment with gcloud avoid using comma separated connectionstring
-if (appOptions.DragonFlyConnectionString.StartsWith("rediss://") ||
-    appOptions.DragonFlyConnectionString.StartsWith("redis://"))
+if (appOptions.DragonFlyConnectionString.StartsWith("rediss://"))
 {
-    redisConfig.Ssl = appOptions.DragonFlyConnectionString.StartsWith("rediss://");
-    redisConfig.EndPoints.Add(appOptions.DragonFlyConnectionString);
-}
-else
-{
-    redisConfig = ConfigurationOptions.Parse(appOptions.DragonFlyConnectionString);
+    var uri = new Uri(appOptions.DragonFlyConnectionString);
+    redisConfig.EndPoints.Add(uri.Host, uri.Port);
+    
+    var userInfo = uri.UserInfo.Split(':');
+    if (userInfo.Length > 1)
+    {
+        redisConfig.User = userInfo[0];      
+        redisConfig.Password = userInfo[1];   
+    }
 }
 
-builder.Services.AddSingleton<IConnectionMultiplexer>(
-    ConnectionMultiplexer.Connect(redisConfig));
+builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
+{
+    var multiplexer = ConnectionMultiplexer.Connect(redisConfig);
+    multiplexer.ConnectionFailed += (sender, e) =>
+    {
+        Console.WriteLine($"Connection failed: {e.Exception}");
+    };
+    return multiplexer;
+});
 builder.Services.AddSingleton<WebSocketManager>();
 builder.Services.AddSingleton<CustomWebSocketServer>();
 
@@ -48,6 +59,9 @@ var publicPort = int.Parse(Environment.GetEnvironmentVariable("PORT") ?? "8080")
 app.Urls.Add($"http://0.0.0.0:{restPort}");
 app.Services.GetRequiredService<IProxyConfig>().StartProxyServer(publicPort, restPort, wsPort);
 app.Services.GetRequiredService<CustomWebSocketServer>().Start(app);
+var redis = app.Services.GetRequiredService<IConnectionMultiplexer>();
+var db = redis.GetDatabase();
+db.StringSet("test", "Hello, World!");
 
 app.Run();
 
