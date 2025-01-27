@@ -20,14 +20,21 @@ var appOptions = builder.Configuration.GetSection(nameof(AppOptions)).Get<AppOpt
 var redisConfig = new ConfigurationOptions
 {
     AbortOnConnectFail = false,
-    ConnectTimeout = 15000, // Increased from 5000
-    SyncTimeout = 15000,    // Increased from 5000
+    ConnectTimeout = 15000,
+    SyncTimeout = 15000,
     Ssl = true,
     DefaultDatabase = 0,
-    ConnectRetry = 5,       // Add retry attempts
-    ReconnectRetryPolicy = new ExponentialRetry(5000), // Add retry policy
-    KeepAlive = 60,         // Explicitly set keep-alive
+    ConnectRetry = 5,
+    ReconnectRetryPolicy = new ExponentialRetry(5000),
+    KeepAlive = 60,
+    // For Render.com Redis, you don't need VPC settings
+    // Just use the provided connection string
+    AllowAdmin = false,
+    ClientName = "MyApp",
+    ResolveDns = true // Important for cloud hosting
 };
+
+// Parse the connection string from Render.com
 if (appOptions.DragonFlyConnectionString.StartsWith("rediss://"))
 {
     var uri = new Uri(appOptions.DragonFlyConnectionString);
@@ -40,7 +47,6 @@ if (appOptions.DragonFlyConnectionString.StartsWith("rediss://"))
         redisConfig.Password = userInfo[1];   
     }
 }
-
 builder.Services.AddSingleton<RedisConnectionPool>(sp => 
     new RedisConnectionPool(redisConfig));
 
