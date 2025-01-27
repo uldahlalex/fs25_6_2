@@ -5,6 +5,7 @@ namespace ExerciseASolution.EventHandlers;
 
 public class ClientWantsToSubscribToTopicDto : BaseDto
 {
+    public string Jwt { get; set; }
     public string Topic { get; set; }
     public string RequestId { get; set; }
 }
@@ -16,18 +17,16 @@ public class ServerHasSubscribedClientToTopicDto : BaseDto
     public string requestId { get; set; }
 }
 
-public class ClientWantsToSubscribeToTopic(WebSocketManager manager) : BaseEventHandler<ClientWantsToSubscribToTopicDto>
+public class ClientWantsToSubscribeToTopic(WebSocketManager manager, SecurityService securityService) : BaseEventHandler<ClientWantsToSubscribToTopicDto>
 {
     public override async Task Handle(ClientWantsToSubscribToTopicDto dto, IWebSocketConnection socket)
     {
-       // var userId = await manager.GetUserIdByConnection(socket.ConnectionInfo.Id.ToString());
-       await manager.Subscribe(
-           //userId
-           socket.ConnectionInfo.Id.ToString()
-           , dto.Topic);
+        var connectionId = socket.ConnectionInfo.Id.ToString();
+        await manager.Subscribe(connectionId, dto.Topic);
+        
         var resp = new ServerHasSubscribedClientToTopicDto
         {
-            UserId = await manager.GetUserIdByConnection(socket.ConnectionInfo.Id.ToString()) ?? throw new Exception("User not found with ID "+socket.ConnectionInfo.Id),
+            UserId = connectionId, 
             requestId = dto.RequestId,
             Topic = dto.Topic
         };

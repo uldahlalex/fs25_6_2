@@ -10,6 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddOptionsWithValidateOnStart<AppOptions>()
     .Bind(builder.Configuration.GetSection(nameof(AppOptions)));
+builder.Services.AddSingleton<SecurityService>();
 builder.Services.AddSingleton<IProxyConfig, ProxyConfig>();
 var appOptions = builder.Configuration.GetSection(nameof(AppOptions)).Get<AppOptions>();
 

@@ -31,10 +31,6 @@ jobs:
       
       #2. create key for service account: gcloud iam service-accounts keys create key.json --iam-account YOUR_SERVICE_ACCOUNT_EMAIL
 
-
-      - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@v1
-
       - name: Deploy to Cloud Run
         id: deploy
         uses: google-github-actions/deploy-cloudrun@v1
@@ -45,13 +41,6 @@ jobs:
           source: .
           env_vars: |
             APPOPTIONS__DragonflyConnectionString=${{ secrets.DRAGONFLY }}
-
-      - name: Allow unauthenticated invocations
-        run: |
-          gcloud run services add-iam-policy-binding fs25 \
-            --region=europe-north1 \
-            --member="allUsers" \
-            --role="roles/run.invoker"
           
       - name: Show Output
         run: echo ${{ steps.deploy.outputs.url }}

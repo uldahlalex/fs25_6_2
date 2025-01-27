@@ -15,38 +15,16 @@ public class WebSocketManager
         _redis = redis.GetDatabase();
     }
     
-    public async Task<string?> GetUserIdByConnection(string connectionId)
-    {
-        var userIdValue = await _redis.HashGetAsync($"ws:connection:{connectionId}", "userId");
-        return userIdValue.HasValue ? userIdValue.ToString() : null;
-    }
-
-    public async Task<IEnumerable<string>> GetConnectionsByUserId(string userId)
-    {
-        var userTopic = $"user:{userId}";
-        var connections = await _redis.SetMembersAsync($"ws:topic:{userTopic}");
-        return connections
-            .Select(c => c.ToString())
-            .Where(connId => _sockets.ContainsKey(connId)); 
-    }
-    
-    public async Task SetUserIdForConnection(string connectionId, string userId)
-    {
-        await _redis.HashSetAsync($"ws:connection:{connectionId}", new HashEntry[]
-        {
-            new("userId", userId)
-        });
-    }
-
+ 
     public async Task OnConnect(IWebSocketConnection socket)
     {
-        _logger.LogInformation(socket.ConnectionInfo.Id.ToString());
         var connectionId = socket.ConnectionInfo.Id.ToString();
         _sockets.TryAdd(connectionId, socket);
-        await _redis.HashSetAsync($"ws:connection:{connectionId}", new HashEntry[]
-        {
-            new("connectedAt", DateTime.UtcNow.Ticks)
-        });
+        
+        // Simply mark the connection as active
+        await _redis.StringSetAsync($"ws:connection:{connectionId}", "1");
+        
+        _logger.LogInformation($"Connection established: {connectionId}");
     }
 
     public async Task OnDisconnect(string connectionId)
@@ -65,9 +43,15 @@ public class WebSocketManager
             _redis.KeyDeleteAsync($"ws:connection:{connectionId}")
         }));
     }
-
+    
     public async Task Subscribe(string connectionId, string topic)
     {
+        var connectionExists = await _redis.StringGetAsync($"ws:connection:{connectionId}");
+        if (!connectionExists.HasValue)
+        {
+            throw new Exception($"Connection not found with ID {connectionId}");
+        }
+
         await Task.WhenAll(
             _redis.SetAddAsync($"ws:topic:{topic}", connectionId),
             _redis.SetAddAsync($"ws:connection:{connectionId}:topics", topic)
