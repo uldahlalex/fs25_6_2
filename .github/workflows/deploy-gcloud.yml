@@ -42,18 +42,13 @@ jobs:
           source: .
           env_vars: |-
             APPOPTIONS__DragonflyConnectionString=${{ secrets.DRAGONFLY }}
-            
+
       - name: Allow unauthenticated invocations
         run: |
           gcloud run services add-iam-policy-binding fs25 \
             --region=europe-north1 \
             --member="allUsers" \
             --role="roles/run.invoker"
-
-      - name: Verify IAM policy
-        run: |
-          gcloud run services get-iam-policy fs25 \
-            --region=europe-north1
-
+          
       - name: Show Output
         run: echo ${{ steps.deploy.outputs.url }}
