@@ -40,7 +40,7 @@ jobs:
           flags: --allow-unauthenticated
           source: .
           env_vars: |
-            APPOPTIONS__DragonflyConnectionString=${{ secrets.DRAGONFLY }}
-          
+            APPOPTIONS__DragonflyConnectionString=$(echo -n "${{ secrets.DRAGONFLY }}" | sed 's/:/\\:/g')
+        
       - name: Show Output
         run: echo ${{ steps.deploy.outputs.url }}
