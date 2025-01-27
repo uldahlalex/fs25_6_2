@@ -41,13 +41,13 @@ builder.Services.InjectEventHandlers(Assembly.GetExecutingAssembly());
 var app = builder.Build();
 var opts = app.Services.GetRequiredService<IOptionsMonitor<AppOptions>>().CurrentValue;
 Console.WriteLine(JsonSerializer.Serialize(opts));
-app.Services.GetRequiredService<CustomWebSocketServer>().Start(app);
 app.Urls.Clear();
 const int restPort = 5000;
 const int wsPort = 8181;
 var publicPort = int.Parse(Environment.GetEnvironmentVariable("PORT") ?? "8080");
 app.Urls.Add($"http://0.0.0.0:{restPort}");
 app.Services.GetRequiredService<IProxyConfig>().StartProxyServer(publicPort, restPort, wsPort);
+app.Services.GetRequiredService<CustomWebSocketServer>().Start(app);
 
 app.Run();
 
