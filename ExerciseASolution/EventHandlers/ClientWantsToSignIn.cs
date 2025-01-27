@@ -23,18 +23,20 @@ public class ServerAuthenticatesClientDto : BaseDto
     public string Jwt { get; set; }
 }
 
-public class ClientWantsToSignInEventHandler(SecurityService securityService)
+public class ClientWantsToSignInEventHandler(SecurityService securityService, WebSocketManager webSocketManager)
     : BaseEventHandler<ClientWantsToSignInDto>
 {
-    public override Task Handle(ClientWantsToSignInDto dto, IWebSocketConnection socket)
+    public override async Task Handle(ClientWantsToSignInDto dto, IWebSocketConnection socket)
     {
+        var connectionId = socket.ConnectionInfo.Id.ToString();
+        var userId = Guid.NewGuid();
+        await webSocketManager.AuthenticateConnection(connectionId, userId.ToString());
         var jwt = securityService.GenerateJwt(dto.Username);
         socket.SendDto(new ServerAuthenticatesClientDto()
         {
             RequestId = dto.RequestId,
             Jwt = jwt
         });
-        return Task.CompletedTask;
     }
 
 
