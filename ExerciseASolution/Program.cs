@@ -16,43 +16,25 @@ builder.Services.AddOptionsWithValidateOnStart<AppOptions>()
 builder.Services.AddSingleton<SecurityService>();
 builder.Services.AddSingleton<IProxyConfig, ProxyConfig>();
 var appOptions = builder.Configuration.GetSection(nameof(AppOptions)).Get<AppOptions>();
-
 var redisConfig = new ConfigurationOptions
 {
     AbortOnConnectFail = false,
-    ConnectTimeout = 15000,
-    SyncTimeout = 15000,
+    ConnectTimeout = 5000,
+    SyncTimeout = 5000,
     Ssl = true,
     DefaultDatabase = 0,
     ConnectRetry = 5,
     ReconnectRetryPolicy = new ExponentialRetry(5000),
-    KeepAlive = 60,
-    // For Render.com Redis, you don't need VPC settings
-    // Just use the provided connection string
-    AllowAdmin = false,
-    ClientName = "MyApp",
-    ResolveDns = true // Important for cloud hosting
+    EndPoints = { { appOptions.REDIS_HOST, 6379 } },
+    User = appOptions.REDIS_USERNAME,
+    Password = appOptions.REDIS_PASS
 };
 
-// Parse the connection string from Render.com
-if (appOptions.DragonFlyConnectionString.StartsWith("rediss://"))
+builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
 {
-    var uri = new Uri(appOptions.DragonFlyConnectionString);
-    redisConfig.EndPoints.Add(uri.Host, uri.Port);
-    
-    var userInfo = uri.UserInfo.Split(':');
-    if (userInfo.Length > 1)
-    {
-        redisConfig.User = userInfo[0];      
-        redisConfig.Password = userInfo[1];   
-    }
-}
-builder.Services.AddSingleton<RedisConnectionPool>(sp => 
-    new RedisConnectionPool(redisConfig));
-
-builder.Services.AddSingleton<IConnectionMultiplexer>(sp => 
-    sp.GetRequiredService<RedisConnectionPool>().GetConnection());
-
+    var multiplexer = ConnectionMultiplexer.Connect(redisConfig);
+    return multiplexer;
+});
 builder.Services.AddSingleton<WebSocketManager>();
 builder.Services.AddSingleton<CustomWebSocketServer>();
 
