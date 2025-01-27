@@ -60,13 +60,16 @@ builder.Services.InjectEventHandlers(Assembly.GetExecutingAssembly());
 
 var app = builder.Build();
 var opts = app.Services.GetRequiredService<IOptionsMonitor<AppOptions>>().CurrentValue;
-Console.WriteLine(JsonSerializer.Serialize(opts));
+
+var logger = app.Services.GetRequiredService<ILogger<Program>>();
+logger.LogInformation("APPOPTIONS START:");
+logger.LogInformation(JsonSerializer.Serialize(opts));
+logger.LogInformation("APPOPTIONS END");
 
 app.Services.GetRequiredService<CustomWebSocketServer>().Start(app);
 var redis = app.Services.GetRequiredService<IConnectionMultiplexer>();
 var db = redis.GetDatabase();
 var result = db.StringSet("test", "Hello, World!");
-Console.WriteLine(result);
 
 
 app.Run();
