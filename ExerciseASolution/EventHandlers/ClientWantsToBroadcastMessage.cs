@@ -1,3 +1,4 @@
+using System.Runtime.Serialization;
 using System.Security.Authentication;
 using Fleck;
 using WebSocketBoilerplate;

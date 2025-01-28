@@ -1,7 +1,9 @@
 using System.Reflection;
 using System.Text.Json;
 using ExerciseASolution;
+using ExerciseASolution.EventHandlers;
 using Microsoft.Extensions.Options;
+using NSwag.Generation.Processors.Security;
 using StackExchange.Redis;
 using Startup;
 using WebSocketBoilerplate;
@@ -10,6 +12,11 @@ ThreadPool.SetMinThreads(250, 250);
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddOpenApiDocument(config =>
+{
+    config.DocumentProcessors.Add(new AddAllDerivedTypesProcessor());
+});
 builder.Services.AddOptionsWithValidateOnStart<AppOptions>()
     .Bind(builder.Configuration.GetSection(nameof(AppOptions)));
 builder.Services.AddSingleton<SecurityService>();
@@ -40,6 +47,8 @@ builder.Services.AddSingleton<CustomWebSocketServer>();
 builder.Services.InjectEventHandlers(Assembly.GetExecutingAssembly());
 
 var app = builder.Build();
+
+app.UseOpenApi(); //openapi documentation found at: http://localhost:5000/swagger/v1/swagger.json
 var opts = app.Services.GetRequiredService<IOptionsMonitor<AppOptions>>().CurrentValue;
 
 var logger = app.Services.GetRequiredService<ILogger<Program>>();
