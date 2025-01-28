@@ -8,7 +8,6 @@ using StackExchange.Redis;
 using Startup;
 using WebSocketBoilerplate;
 
-ThreadPool.SetMinThreads(250, 250); 
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +15,9 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApiDocument(config =>
 {
     config.DocumentProcessors.Add(new AddAllDerivedTypesProcessor());
+    config.DocumentProcessors.Add(new AddStringConstantsProcessor());
+
+    
 });
 builder.Services.AddOptionsWithValidateOnStart<AppOptions>()
     .Bind(builder.Configuration.GetSection(nameof(AppOptions)));

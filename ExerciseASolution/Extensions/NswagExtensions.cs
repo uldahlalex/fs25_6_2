@@ -1,4 +1,6 @@
+using ExerciseASolution.EventHandlers;
 using Namotion.Reflection;
+using NJsonSchema;
 using NSwag.Generation.Processors;
 using NSwag.Generation.Processors.Contexts;
 using WebSocketBoilerplate;
@@ -34,5 +36,29 @@ public sealed class AddAllDerivedTypesProcessor : IDocumentProcessor
         {
             context.SchemaGenerator.Generate(type.ToContextualType(), context.SchemaResolver);
         }
+    }
+}
+
+public sealed class AddStringConstantsProcessor : IDocumentProcessor
+{
+    public void Process(DocumentProcessorContext context)
+    {
+        var schema = new JsonSchema
+        {
+            Type = JsonObjectType.String,
+            Enumeration =
+            {
+                nameof(ClientWantsToBroadcastToTopicDto),
+                nameof(ClientWantsToSignInDto), 
+                nameof(ClientWantsToSubscribeToTopicDto),
+                nameof(ServerConfirmsDto),
+                nameof(ServerAuthenticatesClientDto),
+                nameof(ServerBroadcastsMessageDto),
+                nameof(ServerHasSubscribedClientToTopicDto),
+            },
+            Description = "Available eventType constants"
+        };
+
+        context.Document.Definitions["StringConstants"] = schema;
     }
 }

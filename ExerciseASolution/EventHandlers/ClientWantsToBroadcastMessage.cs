@@ -17,7 +17,7 @@ public class ServerConfirmsDto : BaseDto
     public string RequestId { get; set; }
 }
 
-public class ServerBroadcastsMessage : BaseDto
+public class ServerBroadcastsMessageDto : BaseDto
 {
     public string Message { get; set; }
     public string Sender { get; set; }
@@ -33,7 +33,7 @@ public class ClientWantsToBroadcastMessageEventHandler(
         var userIdByConnection = await webSocketManager.GetUserIdByConnection(socket.ConnectionInfo.Id.ToString()) ??
                                  throw new AuthenticationException("User not authenticated!!");
 
-        var broadcast = new ServerBroadcastsMessage()
+        var broadcast = new ServerBroadcastsMessageDto()
         {
             Sender = userIdByConnection,
             Message = dto.Message,
