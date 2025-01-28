@@ -6,8 +6,7 @@ using StackExchange.Redis;
 using Startup;
 using WebSocketBoilerplate;
 
-// Add this before creating the ConnectionMultiplexer
-ThreadPool.SetMinThreads(250, 250); // Adjust values based on your needs
+ThreadPool.SetMinThreads(250, 250); 
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -51,7 +50,7 @@ logger.LogInformation("APPOPTIONS END");
 app.Services.GetRequiredService<CustomWebSocketServer>().Start(app);
 var redis = app.Services.GetRequiredService<IConnectionMultiplexer>();
 var db = redis.GetDatabase();
-var result = db.StringSet("test", "Hello, World!");
+_ = db.StringSet("test", "Hello, World!");
 
 app.Urls.Clear();
 app.Urls.Add($"http://*:5000");

@@ -1,3 +1,4 @@
+using System.Security.Authentication;
 using Fleck;
 using WebSocketBoilerplate;
 
@@ -5,22 +6,42 @@ namespace ExerciseASolution.EventHandlers;
 
 public class ClientWantsToBroadcastToTopicDto : BaseDto
 {
-    public string Jwt { get; set; }
     public string Message { get; set; }
     public string RequestId { get; set; }
     public string Topic { get; set; }
 }
+
 public class ServerConfirmsDto : BaseDto
 {
     public string RequestId { get; set; }
 }
 
-public class ClientWantsToBroadcastMessageEventHandler(WebSocketManager webSocketManager, SecurityService securityService) : BaseEventHandler<ClientWantsToBroadcastToTopicDto>
+public class ServerBroadcastsMessage : BaseDto
+{
+    public string Message { get; set; }
+    public string Sender { get; set; }
+    public string Topic { get; set; }
+}
+
+public class ClientWantsToBroadcastMessageEventHandler(
+    WebSocketManager webSocketManager,
+    SecurityService securityService) : BaseEventHandler<ClientWantsToBroadcastToTopicDto>
 {
     public override async Task Handle(ClientWantsToBroadcastToTopicDto dto, IWebSocketConnection socket)
     {
-        securityService.VerifyJwtOrThrow(dto.Jwt);
-        await webSocketManager.BroadcastToTopic(dto.Topic, dto);
-        socket.SendDto(new ServerConfirmsDto(){RequestId = dto.RequestId});
+        var userIdByConnection = await webSocketManager.GetUserIdByConnection(socket.ConnectionInfo.Id.ToString()) ??
+                                 throw new AuthenticationException("User not authenticated!!");
+
+        var broadcast = new ServerBroadcastsMessage()
+        {
+            Sender = userIdByConnection,
+            Message = dto.Message,
+            Topic = dto.Topic
+        };
+        await webSocketManager.BroadcastToTopic(dto.Topic, broadcast);
+        socket.SendDto(new ServerConfirmsDto()
+        {
+            RequestId = dto.RequestId
+        });
     }
 }

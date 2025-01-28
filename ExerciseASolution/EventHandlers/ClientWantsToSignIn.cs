@@ -29,7 +29,7 @@ public class ClientWantsToSignInEventHandler(SecurityService securityService, We
     public override async Task Handle(ClientWantsToSignInDto dto, IWebSocketConnection socket)
     {
         var connectionId = socket.ConnectionInfo.Id.ToString();
-        var userId = Guid.NewGuid();
+        var userId = Guid.NewGuid(); //No persisted user - we'll just assign an ID
         await webSocketManager.AuthenticateConnection(connectionId, userId.ToString());
         var jwt = securityService.GenerateJwt(dto.Username);
         socket.SendDto(new ServerAuthenticatesClientDto()
