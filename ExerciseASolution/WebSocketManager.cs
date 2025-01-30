@@ -2,6 +2,7 @@ using System.Collections.Concurrent;
 using System.Text.Json;
 using Fleck;
 using StackExchange.Redis;
+using WebSocketBoilerplate;
 
 public class WebSocketManager
 {
@@ -138,17 +139,13 @@ public class WebSocketManager
         await Task.WhenAll(tasks);
     }
 
-    public async Task BroadcastToTopic(string topic, object message)
+    public async Task BroadcastToTopic<T>(string topic, T message) where T : BaseDto
     {
-        var connections = await _redis.SetMembersAsync($"ws:topic:{topic}");
-        var json = JsonSerializer.Serialize(message);
-        
-        var tasks = connections
-            .Select(conn => conn.ToString())
-            .Where(connId => _connectionIdToSocket.ContainsKey(connId))
-            .Select(connId => _connectionIdToSocket[connId].Send(json));
-        
-        await Task.WhenAll(tasks);
+        var connections = (await _redis.SetMembersAsync($"ws:topic:{topic}")  ).
+            Select(conn => conn.ToString())
+            .Where(connId => _connectionIdToSocket.ContainsKey(connId)).ToList();
+
+            connections.ForEach(connId =>  _connectionIdToSocket[connId].SendDto(message));
     }
 
     public async Task<string?> GetUserIdByConnection(string connectionId)
