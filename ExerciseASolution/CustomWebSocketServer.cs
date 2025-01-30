@@ -1,3 +1,4 @@
+using ExerciseASolution.EventHandlers;
 using Fleck;
 using WebSocketBoilerplate;
 
@@ -24,6 +25,10 @@ public class CustomWebSocketServer(
                 catch (Exception e)
                 {
                     logger.LogError(e, "Error while handling message");
+                    socket.SendDto(new ServerSendsErrorMessagesDto()
+                    {
+                        Error = e.Message
+                    });
                 }
 
             };

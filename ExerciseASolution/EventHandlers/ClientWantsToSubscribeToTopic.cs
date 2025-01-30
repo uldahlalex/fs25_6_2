@@ -17,6 +17,12 @@ public class ServerHasSubscribedClientToTopicDto : BaseDto
     public string requestId { get; set; }
 }
 
+public class ServerSendsErrorMessagesDto : BaseDto
+{
+    public string Error { get; set; }
+    public string requestId { get; set; }
+}
+
 public class ClientWantsToSubscribeToTopic(WebSocketManager webSocketManager, SecurityService securityService) : BaseEventHandler<ClientWantsToSubscribeToTopicDto>
 {
     public override async Task Handle(ClientWantsToSubscribeToTopicDto dto, IWebSocketConnection socket)
