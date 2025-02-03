@@ -1,13 +1,13 @@
 
 # Client Side Event Handling
 
-<!-- ![video](https://img.youtube.com/vi/nKCCoZmV2ls/0.jpg) -->
 
-<!-- Video link: `https://youtu.be/nKCCoZmV2ls` -->
+![alt text](image-1.png)
+Video link: `https://youtu.be/yWyQdM7sjOU`
 
 
 
-#### Remote repo for today's lesson with solutions: `https://github.com/uldahlalex/fs25_6_2`
+#### Remote repo for today's lesson: `https://github.com/uldahlalex/fs25_6_2`
 
 
 
@@ -24,27 +24,51 @@
 
 ### Exercises
 
+Today there's is one singular (bigger) exercise
 
 <!-- #region ex A -->
 
 <details>
-    <summary>Exercise A: using onRequest<RequestDto, ResponseDto>(eventtype, dto)</summary>
+    <summary>Today's Exercise: Client app for WebSocket API</summary>
 
 
 <div style="margin: 20px; padding: 5px;  box-shadow: 10px 10px 10px grey;">
 
 
-#### Task
+#### Introduction
+Make a React websocket client app for an existing API.
+
+To make the "starting point" even for everyone, I've deployed a WebSocket API *(using same technologies as last 2 lessons).*
+
+It's running here: `wss://fs25-267099996159.europe-north1.run.app/` 
+
+**You can build an run your own WebSocket API locally if you prefer - using above's link just means you don't need to have finished an entire API before making the client app** 
+
+The API has 3 "success events" documented here: `https://www.postman.com/uldahlalexteam/fullstack-2025-workspace/ws-raw-request/6790105669c951396fd94945`
+
+![alt text](image.png)
 
 
-#### Instructions
+#### Criteria
 
+- Any WebSocket client library can be used, but I recommend one of following:
+    - The popular react-use-websocket: (`https://www.npmjs.com/package/react-use-websocket`) 
+    - This custom wrapper `https://www.npmjs.com/package/ws-request-hook` which provides extra functionality (request tracking & event listening)
+- Features:
+    - It should be possible for a client to sign in
+    - It should be possible for a client to "subscribe" to a "topic" and afterwards receive messages broadcasted from the API to the particular topic
+    - It should be possible for a client to broadcast messages to a topic
 
+Check that the subscription and broadcasting works multi-client (2 browser windows)
 
-#### How to test it:
+#### Solution example:
 
+I've made a small react app using ws-request-hook in the "example" directory here: `https://github.com/uldahlalex/ws-request-hook/tree/main/examples`
 
-This should be the result:
+#### Tips:
+
+- Don't spend a lot of time on the graphical UI: Focus on getting the client-server communication to work
+
 <!-- ![image.png](image.png) -->
 
 
@@ -52,56 +76,8 @@ This should be the result:
 </details>
 
 <!-- #endregion ex A -->
-_________
-
-<!-- #region ex B -->
-
-<details>
-    <summary>Exercise B: using onMessage<ServerEventDto>(eventType, message)</summary>
-
-
-<div style="margin: 20px; padding: 5px;  box-shadow: 10px 10px 10px grey;">
-
-#### Task
-
-#### Instructions
-
-
-#### How to test it:
-
-
-<!-- ![alt text](image-1.png) -->
-
-</div>
-</details>
-
-<!-- #endregion ex B -->
-_________
-
-<!-- #region ex C -->
-
-<details>
-    <summary>Exercise C: Make client app for your exercise D from last week (server app with data persistence)</summary>
-
-
-<div style="margin: 20px; padding: 5px;  box-shadow: 10px 10px 10px grey;">
-
-
-### Task:
-
-
-
-</div>
-</details>
-
-<!-- #endregion ex C -->
 
 
 
 _______
 
-### Exam dialogue question examples around today's content:
-- 
-
-### References and furhter reading:
-- 
